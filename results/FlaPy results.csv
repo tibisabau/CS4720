@@ -1,0 +1,11 @@
+Project_Name,Test_name,flaky?,Passed_sameOrder,Failed_sameOrder,Passed_randomOrder,Failed_randomOrder
+avwx-engine,test_fetch,non-order-dependent,9,11,11,9
+flapy_example,test_network_remote_connection_failure,order-dependent,20,0,18,2
+flapy_example,test_numpy_random,non-order-dependent,10,10,13,7
+flapy_example,test_random,non-order-dependent,15,5,8,12
+flapy_example,test_time,non-order-dependent,12,8,9,11
+flapy_example,test_unordered_collections,non-order-dependent,9,11,11,9
+flapy_example,test_victim,order-dependent,20,0,14,6
+jgutils,test_numeric_intermixed,non-order-dependent,11,9,8,12
+jgutils,test_file_creation2,order-dependent,20,0,11,9
+
