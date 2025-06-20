@@ -4,6 +4,7 @@ import seaborn as sns
 import glob
 import numpy as np
 
+# Gather all CSV file paths in the 'results' directory
 file_paths = glob.glob("results/*.csv")
 data_frames = []
 
@@ -11,12 +12,13 @@ for path in file_paths:
     df = pd.read_csv(path)
     df.columns = df.columns.str.strip()
     df['source_file'] = path
-
+    # Filter data: include only flapy_example and avwx-engine projects and flaky tests
     if 'Project_Name' in df.columns and 'flaky?' in df.columns:
         df = df[df['Project_Name'].isin(['flapy_example', 'avwx-engine'])]
         df = df[df['flaky?'] != 'not flaky']
         data_frames.append(df)
 
+# Combine all processed DataFrames into one
 combined_df = pd.concat(data_frames, ignore_index=True)
 
 def plot_metric_by_test(combined_df, metric_column, output_filename="bar_chart.png", title=None):
@@ -26,6 +28,7 @@ def plot_metric_by_test(combined_df, metric_column, output_filename="bar_chart.p
     if metric_column not in combined_df.columns:
         raise ValueError(f"Column '{metric_column}' not found in DataFrame.")
 
+    # Prepare and group data by test name and file
     plot_df = combined_df[['Test_name', metric_column, 'source_file']]
     plot_df = plot_df.groupby(['Test_name', 'source_file'])[metric_column].sum().reset_index()
 
@@ -89,6 +92,7 @@ def plot_grouped_stacked_bar(combined_df, order_type='sameOrder', output_filenam
     if pass_col not in combined_df.columns or fail_col not in combined_df.columns:
         raise ValueError(f"Columns {pass_col} and/or {fail_col} not found in DataFrame.")
 
+    # Aggregate passed and failed counts
     df_plot = combined_df[['Test_name', 'source_file', pass_col, fail_col]].copy()
     df_plot = df_plot.groupby(['Test_name', 'source_file']).sum().reset_index()
 
@@ -108,6 +112,7 @@ def plot_grouped_stacked_bar(combined_df, order_type='sameOrder', output_filenam
     x = np.arange(len(test_names))
     fig, ax = plt.subplots(figsize=(14, 6))
 
+    # Plot bars with stacking
     for i, src in enumerate(source_files):
         src_data = df_plot[df_plot['source_file'] == src].set_index('Test_name')
         passed = [src_data.loc[test, pass_col] if test in src_data.index else 0 for test in test_names]
@@ -145,6 +150,9 @@ plot_grouped_stacked_bar(combined_df, order_type='randomOrder', output_filename=
 
 
 def plot_flakiness_bar_all_files(df, output_filename='flakiness_bar_all.png'):
+    """
+    Generates a bar chart plot with the flakiness category counts per file
+    """
     grouped = df.groupby(['source_file', 'flaky?']).size().reset_index(name='count')
 
     plt.figure(figsize=(12, 6))
@@ -164,7 +172,7 @@ def plot_flakiness_pie_all_files(df, output_filename='flakiness_pies_all.png'):
     grouped = df.groupby(['source_file', 'flaky?']).size().reset_index(name='count')
     source_files = grouped['source_file'].unique()
     num_files = len(source_files)
-
+    # Define grid for pie plots
     cols = 3
     rows = (num_files + cols - 1) // cols
 
